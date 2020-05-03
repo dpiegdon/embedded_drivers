@@ -11,9 +11,11 @@ This module consists of drivers for:
 * Solomon Systech SSD1306 -- 128x64 Dot Matrix OLED Display + Controller
 * Silicon Labs Si7020 -- I2C Humidity and Temperature Sensor
 
-It also contains:
+In the subdiretory @nrfx/@, it also contains glue logic, ports and drivers specific to NRFX,
+a driver suite specific to microcontroller of Nordic Semi (e.g. the NRF52840).
+See https://github.com/NordicSemiconductor/nrfx
 
-* NRFX glue logic -- tools and helper functions to easily use these drivers with the Noric Semi nrfx drivers. See https://github.com/NordicSemiconductor/nrfx
+* nrfx/glue.cpp -- Glue logic to nrfx.
 
 
 Authors

@@ -15,7 +15,7 @@
     along with embedded_drivers.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "embedded_drivers/glue_nrfx.h"
+#include "embedded_drivers/nrfx/glue.h"
 
 namespace embedded_drivers {
 

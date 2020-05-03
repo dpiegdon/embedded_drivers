@@ -2,3 +2,5 @@
 *.lst
 *.o
 *.su
+*.swp
+.*.swp
