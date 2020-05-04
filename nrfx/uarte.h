@@ -26,18 +26,28 @@ class Uarte {
 public:
 	Uarte(uint32_t tx, uint32_t rx, uint32_t cts, uint32_t rts);
 
-	int Write(char const * data, int const len)
+	// write data to uart
+	uint32_t Write(char const * data, int const len)
 	{
-		if(NRFX_SUCCESS != nrfx_uarte_tx(&mUarteInstance, (unsigned char*)data, len))
-			return -EINVAL;
-		return len;
+		return nrfx_uarte_tx(&mUarteInstance, (unsigned char*)data, len);
 	}
 
-	int Read(char * data, int const len)
+	// read data from uart
+	uint32_t Read(char * data, int const len)
 	{
-		if(NRFX_SUCCESS != nrfx_uarte_rx(&mUarteInstance, (unsigned char*)data, len))
-			return -EINVAL;
-		return len;
+		return nrfx_uarte_rx(&mUarteInstance, (unsigned char*)data, len);
+	}
+
+	// check if at least one byte can be read
+	bool RxReady(void)
+	{
+		return nrfx_uarte_rx_ready(&mUarteInstance);
+	}
+
+	// get mask of errors set by uart device
+	uint32_t GetErrors(void)
+	{
+		return nrfx_uarte_errorsrc_get(&mUarteInstance);
 	}
 private:
 	nrfx_uarte_t mUarteInstance;
