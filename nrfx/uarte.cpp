@@ -23,10 +23,10 @@ Uarte::Uarte(uint32_t tx, uint32_t rx, uint32_t cts, uint32_t rts)
 	mUarteInstance.p_reg = NRFX_CONCAT_2(NRF_UARTE, 0);
 	mUarteInstance.drv_inst_idx = NRFX_CONCAT_3(NRFX_UARTE, 0, _INST_IDX);
 
-	mUarteConfig.hwfc     = (nrf_uarte_hwfc_t) NRFX_UART_DEFAULT_CONFIG_HWFC;
-	mUarteConfig.parity   = (nrf_uarte_parity_t) NRFX_UART_DEFAULT_CONFIG_PARITY;
-	mUarteConfig.baudrate = (nrf_uarte_baudrate_t) NRFX_UART_DEFAULT_CONFIG_BAUDRATE;
-	mUarteConfig.interrupt_priority = NRFX_UART_DEFAULT_CONFIG_IRQ_PRIORITY;
+	mUarteConfig.hwfc     = (nrf_uarte_hwfc_t) NRFX_UARTE_DEFAULT_CONFIG_HWFC;
+	mUarteConfig.parity   = (nrf_uarte_parity_t) NRFX_UARTE_DEFAULT_CONFIG_PARITY;
+	mUarteConfig.baudrate = (nrf_uarte_baudrate_t) NRFX_UARTE_DEFAULT_CONFIG_BAUDRATE;
+	mUarteConfig.interrupt_priority = NRFX_UARTE_DEFAULT_CONFIG_IRQ_PRIORITY;
 
 	mUarteConfig.pseltxd = tx;
 	mUarteConfig.pselrxd = rx;
