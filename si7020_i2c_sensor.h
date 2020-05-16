@@ -17,10 +17,8 @@
 
 #pragma once
 
+#include <cstdint>
 #include <utility>
-
-#include "nrfx_twim.h"
-#include "nrfx_gpiote.h"
 
 namespace embedded_drivers {
 

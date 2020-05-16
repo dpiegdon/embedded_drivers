@@ -18,9 +18,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cerrno>
-
-#include <FreeRTOS.h>
-#include <task.h>
+#include <cassert>
 
 #include "embedded_drivers/ssd1306_i2c_display.h"
 

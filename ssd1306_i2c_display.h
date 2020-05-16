@@ -17,9 +17,6 @@
 
 #pragma once
 
-#include "nrfx_twim.h"
-#include "nrfx_gpiote.h"
-
 #include <alloca.h>
 #include <cstring>
 #include <cstdint>
