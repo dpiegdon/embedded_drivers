@@ -157,6 +157,11 @@ namespace embedded_drivers {
 		}
 	}
 
+	bool Ssd1306I2cDisplay::Puts(char const *str)
+	{
+		Write(str, strlen(str));
+	}
+
 	int Ssd1306I2cDisplay::Write(char const *data, int const len)
 	{
 		for(int i=0; i<len; ++i)

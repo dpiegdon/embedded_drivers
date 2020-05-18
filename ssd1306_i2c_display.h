@@ -44,6 +44,7 @@ namespace embedded_drivers {
 		void ClearLinesAfterCursor(bool fixCursorPosition = true);
 		void ClearAfterCursor(bool resetCursorToNull = true);
 		bool PutChar(char const c);
+		bool Puts(char const *str);
 		int Write(char const *data, int const len);
 
 		void Off(void)			{ SSD1306DisplayCommand(0xae); };
