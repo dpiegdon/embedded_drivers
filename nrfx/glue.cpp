@@ -30,9 +30,6 @@ namespace embedded_drivers {
 	{
 		nrfx_twim_config_t twimConfig;
 
-		twim_instance->p_twim       = NRF_TWIM1;
-		twim_instance->drv_inst_idx = NRFX_TWIM1_INST_IDX;
-
 		twimConfig.scl = sck;
 		twimConfig.sda = sda;
 		twimConfig.frequency = frequency;
