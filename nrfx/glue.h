@@ -61,6 +61,17 @@ namespace embedded_drivers {
 			size_t tx_size,
 			uint8_t * rx_buf,
 			size_t rx_size);
+	struct spi_context_with_cs {
+		void * spim_instance;
+		bool cs_active_low;
+		nrfx_gpiote_pin_t cs_pin;
+	};
+	bool nrfx_spim_xfer_manual_cs_implementation(void * spi_context_with_cs,
+			uint8_t const * tx_buf,
+			size_t tx_size,
+			uint8_t * rx_buf,
+			size_t rx_size);
+
 
 	// glue logic for MPU9250 interrupts
 	bool nrfx_setup_mpu9250_motion_interrupt(Mpu9250SpiSensor & motionSensor,

@@ -117,6 +117,25 @@ namespace embedded_drivers {
 		return (NRFX_SUCCESS == nrfx_spim_xfer(spim_instance, &xfer, 0));
 	}
 
+	bool nrfx_spim_xfer_manual_cs_implementation(void * spi_context_with_cs,
+			uint8_t const * tx_buf,
+			size_t tx_size,
+			uint8_t * rx_buf,
+			size_t rx_size)
+	{
+		struct spi_context_with_cs * ctx = (struct spi_context_with_cs *)spi_context_with_cs;
+		if(ctx->cs_active_low)
+			nrf_gpio_pin_clear(ctx->cs_pin);
+		else
+			nrf_gpio_pin_set(ctx->cs_pin);
+		bool ret = nrfx_spim_xfer_implementation(ctx->spim_instance, tx_buf, tx_size, rx_buf, rx_size);
+		if(ctx->cs_active_low)
+			nrf_gpio_pin_set(ctx->cs_pin);
+		else
+			nrf_gpio_pin_clear(ctx->cs_pin);
+		return ret;
+	}
+
 	// glue logic for MPU9250 interrupts
 
 	bool nrfx_setup_mpu9250_motion_interrupt(Mpu9250SpiSensor & motionSensor,
