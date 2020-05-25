@@ -27,6 +27,8 @@ namespace embedded_drivers {
 #define SSD1306DisplayCommand(...) I2cTx({0x00, __VA_ARGS__})
 
 	class Ssd1306I2cDisplay {
+		/* Driver for the Solomon Systech SSD1306 128x64 dotmatrix OLED display i2c controller. */
+
 	public:
 		Ssd1306I2cDisplay(void * sleepMsecsContext,
 				void(*sleepMsecs)(void * context, unsigned msecs),
@@ -57,6 +59,7 @@ namespace embedded_drivers {
 		void CursorSetPosition(unsigned col, unsigned page);
 
 		void Test(void);
+
 	private:
 		unsigned const mDisplayWidth;
 		unsigned const mDisplayHeight;

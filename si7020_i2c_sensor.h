@@ -23,6 +23,8 @@
 namespace embedded_drivers {
 
 	class Si7020I2cSensor {
+		/* Driver for the Silicon Labs Si7021-A20 i2c humidity and temperature sensor. */
+
 	public:
 		Si7020I2cSensor(void * i2cContext,
 				bool(*i2cTx)(void * context, uint8_t address, const uint8_t * buffer, size_t len),
@@ -32,6 +34,7 @@ namespace embedded_drivers {
 		float ReadHumidity(void);
 		float ReadTemperature(void);
 		std::pair<float, float> ReadHumidityTemperature(void);
+
 	private:
 		float TempCodeToTemperature(uint16_t tempcode);
 		float RHCodeToHumidity(uint16_t rhcode);

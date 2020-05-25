@@ -20,6 +20,7 @@
 #include <cstdint>
 
 namespace embedded_drivers {
+
 	namespace font_tama_mini02 {
 
 		extern uint8_t const * dataptr;

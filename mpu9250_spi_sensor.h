@@ -22,9 +22,15 @@
 namespace embedded_drivers {
 
 	class Mpu9250SpiSensor {
+		/*
+		 * Driver for the InvenSense MPU-9250 inertial measurement unit.
+		 * SPI MODE 3 is required for communication.
+		 * Take care to setup the bus accordingly.
+		 */
 
-		typedef bool(*SpiXferCallback)(void * spi_context, uint8_t const * tx_buf, size_t tx_size, uint8_t * rx_buf, size_t rx_size);
 	public:
+		typedef bool(*SpiXferCallback)(void * spi_context, uint8_t const * tx_buf, size_t tx_size, uint8_t * rx_buf, size_t rx_size);
+
 		Mpu9250SpiSensor(void * spiContext, SpiXferCallback spiXfer);
 
 		bool Reset(void)

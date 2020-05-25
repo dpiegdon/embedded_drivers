@@ -26,6 +26,8 @@
 namespace embedded_drivers {
 
 	class Si5351I2cClockgenerator {
+		/* Driver for the Silicon Labs Si5351A/B/C-B CMOS clock generator. */
+
 	public:
 		Si5351I2cClockgenerator(
 				void * i2cContext,
