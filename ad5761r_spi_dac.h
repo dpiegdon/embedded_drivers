@@ -24,7 +24,7 @@ namespace embedded_drivers {
 	class Ad5761rSpiDac {
 		/*
 		 * Driver for the Analog Devices AD5761[R] and AD5721[R].
-		 * SPI MODE 1 is required for communication.
+		 * SPI MODE 2 is required for communication.
 		 * Take care to setup the bus accordingly.
 		 */
 
