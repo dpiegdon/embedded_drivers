@@ -16,7 +16,6 @@
 */
 
 #include "machine/endian.h"
-
 #include "embedded_drivers/mcp9808.h"
 
 namespace embedded_drivers {
@@ -66,8 +65,8 @@ namespace embedded_drivers {
 
 		temperature_celsius = float(reg & 0x0fff) / 16.;
 
-		if(reg & (1<<12))
-			temperature_celsius = 256. - temperature_celsius;
+		if(reg & 0x1000)
+			temperature_celsius -= 256;
 		return true;
 	}
 
