@@ -33,7 +33,9 @@ namespace embedded_drivers {
 			nrfx_gpiote_pin_t sda,
 			nrf_twim_frequency_t frequency,
 			uint8_t irq_priority,
-			bool hold_bus_uninit);
+			bool hold_bus_uninit,
+                        nrfx_twim_evt_handler_t event_handler = NULL,
+                        void *p_context = NULL);
 	void nrfx_deinit_twim(nrfx_twim_t *twim_instance);
 	bool nrfx_twim_tx_implementation(void * context,
 			uint8_t address,
@@ -55,7 +57,9 @@ namespace embedded_drivers {
 			uint8_t orc,
 			nrf_spim_frequency_t frequency,
 			nrf_spim_mode_t mode,
-			nrf_spim_bit_order_t bit_order);
+			nrf_spim_bit_order_t bit_order,
+			nrfx_spim_evt_handler_t handler = NULL,
+			void *p_context = NULL);
 	bool nrfx_spim_xfer_implementation(void * spi_context,
 			uint8_t const * tx_buf,
 			size_t tx_size,

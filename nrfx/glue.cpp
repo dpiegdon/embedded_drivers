@@ -26,9 +26,11 @@ namespace embedded_drivers {
 			nrfx_gpiote_pin_t sda,
 			nrf_twim_frequency_t frequency,
 			uint8_t irq_priority,
-			bool hold_bus_uninit)
+			bool hold_bus_uninit,
+                        nrfx_twim_evt_handler_t event_handler,
+                        void *p_context)
 	{
-		nrfx_twim_config_t twimConfig;
+		nrfx_twim_config_t twimConfig{};
 
 		twimConfig.scl = sck;
 		twimConfig.sda = sda;
@@ -37,7 +39,7 @@ namespace embedded_drivers {
 		twimConfig.hold_bus_uninit = hold_bus_uninit;
 
 		nrfx_err_t err;
-		err = nrfx_twim_init(twim_instance, &twimConfig, NULL, NULL);
+		err = nrfx_twim_init(twim_instance, &twimConfig, event_handler, p_context);
 		assert(NRFX_SUCCESS == err);
 
 		nrfx_twim_enable(twim_instance);
@@ -78,9 +80,11 @@ namespace embedded_drivers {
 			uint8_t orc,
 			nrf_spim_frequency_t frequency,
 			nrf_spim_mode_t mode,
-			nrf_spim_bit_order_t bit_order)
+			nrf_spim_bit_order_t bit_order,
+			nrfx_spim_evt_handler_t handler,
+			void *p_context)
 	{
-		nrfx_spim_config_t spim_config;
+		nrfx_spim_config_t spim_config{};
 
 		spim_config.sck_pin = sck;
 		spim_config.mosi_pin = mosi;
@@ -95,7 +99,7 @@ namespace embedded_drivers {
 		spim_config.bit_order = bit_order;
 
 		nrfx_err_t err;
-		err = nrfx_spim_init(spim_instance, &spim_config, NULL, NULL);
+		err = nrfx_spim_init(spim_instance, &spim_config, handler, p_context);
 		assert(NRFX_SUCCESS == err);
 	}
 
