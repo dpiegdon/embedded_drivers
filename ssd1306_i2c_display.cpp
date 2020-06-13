@@ -168,9 +168,35 @@ namespace embedded_drivers {
 
 	int Ssd1306I2cDisplay::Write(char const *data, int const len)
 	{
-		for(int i=0; i<len; ++i)
-			if(!PutChar(data[i]))
-				return -EINVAL;
+		int todo = len;
+		while(todo) {
+			// check when a control character or a newline-situation would be met
+			// and try to transfer everything until then in a single transfer.
+			ssize_t maxChunk = mColumnCount - mCursorX - 1;
+			ssize_t maxPrintable;
+			if(maxChunk > 0) {
+				for(maxPrintable = 0; maxPrintable < todo; ++maxPrintable)
+					if(!IsPrintable(data[maxPrintable]))
+						break;
+				maxChunk = std::min(maxChunk, maxPrintable);
+				if(maxChunk >= 2) {
+					if(!DrawFontMulti((const uint8_t*)data, maxChunk))
+						return -EINVAL;
+					mCursorX += maxChunk;
+					data += maxChunk;
+					todo -= maxChunk;
+				} else {
+					goto write_single;
+				}
+			} else {
+write_single:
+				// A newline situation or special character needs care
+				if(!PutChar(*data))
+					return -EINVAL;
+				++data;
+				--todo;
+			}
+		}
 		return len;
 	}
 

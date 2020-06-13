@@ -58,6 +58,8 @@ namespace embedded_drivers {
 
 		void CursorSetPosition(unsigned col, unsigned page);
 
+		bool IsPrintable(char const c)  { return ((c >= 0x20) && (c <= 0x7f)); };
+
 		void Test(void);
 
 	private:
@@ -94,6 +96,23 @@ namespace embedded_drivers {
 			buf[0] = 0x40;
 			memcpy(buf+1, &mFontData[c*mFontFaceSize], mFontFaceSize);
 			return I2cTx(buf, tx_size);
+		}
+
+		bool DrawFontMulti(uint8_t const * data, size_t len)
+		{
+			assert(len <= mColumnCount);
+
+			unsigned const tx_size = 1 + len * mFontFaceSize;
+			std::vector<uint8_t> buf(tx_size);
+			uint8_t *p;
+			unsigned i;
+
+			buf[0] = 0x40;
+			for(i=0, p=buf.data()+1 ; i<len ; ++i, p+=mFontFaceSize, ++data) {
+				unsigned offset = mFontFaceSize * (*data - ' ');
+				memcpy(p, &mFontData[offset], mFontFaceSize);
+			}
+			return I2cTx(buf.data(), tx_size);
 		}
 
 		bool I2cTx(uint8_t const * buf, size_t len)
