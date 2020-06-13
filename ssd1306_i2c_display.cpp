@@ -59,7 +59,6 @@ namespace embedded_drivers {
 	{
 		assert(8 == mFontHeight);
 		Init();
-		printf("fontsize %d\r\n", mFontFaceSize);
 	}
 
 	Ssd1306I2cDisplay::~Ssd1306I2cDisplay(void)
