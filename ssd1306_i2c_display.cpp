@@ -46,6 +46,10 @@ namespace embedded_drivers {
 		, mClearCommand{ 0x40,    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 					  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 					  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+					  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+					  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+					  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+					  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 					  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, }
 		, mSleepMsecsContext(sleepMsecsContext)
 		, mSleepMsecs(sleepMsecs)
@@ -67,7 +71,7 @@ namespace embedded_drivers {
 
 		SSD1306DisplayCommand(0x22, 0, uint8_t(mLineCount-1));
 		SSD1306DisplayCommand(0x21, 0, uint8_t(mDisplayWidth-1));
-		for(unsigned i = 0; i < mLineCount*mDisplayWidth / (sizeof(mClearCommand)-1); ++i)
+		for(unsigned i = 0; i < mLineCount*mDisplayWidth / (mClearCommand.size()-1); ++i)
 			I2cTx(mClearCommand);
 
 		SetViewPortY(0);
@@ -89,7 +93,7 @@ namespace embedded_drivers {
 			SSD1306DisplayCommand(0x22, uint8_t(mCursorY+1), uint8_t(mLineCount-1));
 			SSD1306DisplayCommand(0x21, 0, uint8_t(mDisplayWidth-1));
 
-			for(unsigned i = 0; i < lines * mDisplayWidth / (sizeof(mClearCommand)-1); ++i)
+			for(unsigned i = 0; i < lines * mDisplayWidth / (mClearCommand.size()-1); ++i)
 				I2cTx(mClearCommand);
 
 			if(fixCursorPosition)
@@ -213,7 +217,7 @@ namespace embedded_drivers {
 		SSD1306DisplayCommand(0x22, page, page);
 		if(clearLine) {
 			SSD1306DisplayCommand(0x21, 0, uint8_t(mDisplayWidth-1));
-			for(unsigned i = 0; i < (mDisplayWidth / (sizeof(mClearCommand)-1)); ++i)
+			for(unsigned i = 0; i < (mDisplayWidth / (mClearCommand.size()-1)); ++i)
 				I2cTx(mClearCommand);
 		}
 		SSD1306DisplayCommand(0x21, col, uint8_t(mDisplayWidth-1));
