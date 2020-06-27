@@ -5,6 +5,8 @@
  * Enable ITM tracing on SWO pin.
  * if @uart, uart mode is used; otherwise manchester encoding.
  * @prescaler changes the baud rate. for UART, 0x40 = 500KBaud, 0x10 = 2MBaud.
+ * if @timestamps, timestamps will be added to the trace.
+ * @ts_prescaler controls the timestamp frequency (0b00=/1, 0b01=/4, 0b10=/16, 0b11=/64).
  * @enable_channels is a bitmask of the channels to be enabled.
  *
  * The SWO pin is muxed and setup correctly for ITM tracing, tracing is enabled
@@ -40,7 +42,7 @@ static inline void enable_swo_etm_tracing(bool uart, uint32_t prescaler,
 	// enable ITM trace and timestamps
 	ITM->TCR = ITM_TCR_ITMENA_Msk;
 	if(timestamps)
-		ITM->TCR |= ITM_TCR_TSENA_Msk | (ts_prescaler << ITM_TCR_SWOENA_Pos);
+		ITM->TCR |= ITM_TCR_TSENA_Msk | ((ts_prescaler & ITM_TCR_TSPrescale_Msk) << ITM_TCR_TSPrescale_Pos);
 
 	// enable trace channels
 	ITM->TER = enable_channels;
