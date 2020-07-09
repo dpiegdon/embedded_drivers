@@ -3,15 +3,66 @@
 #include <core_cm4.h>
 
 /*
+ * Documentation on debugging components and their registers:
+ *
+ *
+ * ARM TPI / TPIU (Trace Port Interface Unit)
+ * @0xE0040000
+ * see:
+ *	ARM-Cortex-M4 Technical Reference Manual
+ *	ARM-v7M Architecture Reference Manual
+ *	CoreSight Architecture Specification
+ *
+ *
+ * ARM ITM (Instrumentation Trace Macrocell)
+ * @0xE0000000
+ * see:
+ *	ARM-Cortex-M4 Technical Reference Manual
+ *	ARM-v7M Architecture Reference Manual
+ *	CoreSight Architecture Specification
+ *
+ *
+ * ARM ETM (Embedded Trace Macrocell)
+ * @0xE0041000
+ * see:
+ *	https://developer.arm.com/documentation/ihi0014/q/programmers--model/the-etm-registers
+ *	Embedded Trace Macrocell Architecture Specification
+ *	v1.0-v3.5
+ *	(Cortex-M4 has v3.5)
+ *	-> Embedded Trace Macrocell Architecture Specification
+ *	-> Programmer's Model
+ *	-> The ETM registers
+ *
+ *
+ * ARM DWT (Data Watchpoint and Trace)
+ * @0xE0001000
+ * see:
+ *	ARM-Cortex-M4 Technical Reference Manual
+ *	ARM-v7M Architecture Reference Manual
+ *
+ *
+ * ARM ETB (Embedded Trace Buffer)
+ * @0xE0042000
+ * NOT AVAILABLE ON CORTEX-M4.
+ * see:
+ *	ARM-v7M Architecture Reference Manual
+ *	CoreSight Architecture Specification
+ *
+ */
+
+
+
+/*
  * Enable ITM tracing on SWO pin.
  *
  * if @uart, uart mode is used; otherwise manchester encoding.
  *
- * @prescaler changes the SWO output clock (effective baud rate):
- *   output clock = async reference clock / (1+prescaler)
+ * @outputPrescaler changes the SWO output clock (effective baud rate):
+ *   output clock = async reference clock / (1+outputPrescaler)
  * the async ref clock may somehow be related to the cpu core clock.
- * e.g. for the nRF52840, the async ref clock is running at 32MHz, i.e core clock/2
- *   which effectively yields baudrates of: 64M/2/(1+prescaler)
+ * e.g. for the nRF52840, the async ref clock is the TRACEPORT speed
+ * as configured in NRF_CLOCK->TRACECONFIG.
+ * e.g. 32MHz effectively yields baudrates of: 32M/(1+outputPrescaler)
  *
  * if @timestamps, timestamps will be added to the trace.
  * @ts_prescaler controls the timestamp frequency (0b00=/1, 0b01=/4, 0b10=/16, 0b11=/64).
@@ -24,111 +75,67 @@
 	ITM->PORT[0].u8 = 'X';
  * Or use ITM_SendChar() from CMSIS for printf-like ouput on trace 0.
  */
-static inline void arm_cm4_enable_swo_itm_tracing(bool uart, uint32_t prescaler,
-					bool timestamps, uint32_t ts_prescaler)
+static inline void arm_cm4_enable_swo_itm_tracing(bool uart, uint32_t outputPrescaler,
+					bool globalTs, bool localTs, uint32_t localTsPrescaler,
+					uint32_t channels)
 {
 	/* XXX this is work in progress XXX */
 
 	// enable DWT and ITM blocks
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 
-
-	/* ARM documentation on TPI / TPIU (Trace Port Interface Unit)
-	 *	https://developer.arm.com/documentation/ddi0314/h/trace-port-interface-unit/tpiu-programmers-model
-	 *	CoreSight Components Technical Reference Manual
-	 *	v1.0
-	 *	-> Trace Port Interface Unit
-	 *	-> TPIU programmers model
-	 * @0xE0040000
-	 */
-
-	// set SWO output prescaler
-	TPI->ACPR = prescaler;
+	// set SWO output outputPrescaler
+	TPI->ACPR = outputPrescaler;
 
 	// output type for SWO
 	TPI->SPPR = uart ? 2 : 1;
 
-
-	/* ARM documentation on ITM (Instrumentation Trace Macrocell)
-	 *	see:	ARM-Cortex-M4 Technical Reference Manual
-	 *		ARM-v7M Architecture Reference Manual
-	 *		CoreSight Architecture Specification
-	 * @0xE0000000
-	 */
-
-
 	// unlock ITM registers
 	ITM->LAR = 0xC5ACCE55;
 
-	// generate global timestamp after every packet if the output FIFO is empty
-//	ITM->TCR &= ~ITM_TCR_GTSFREQ_Msk;
-//	ITM->TCR |= (0x3 << ITM_TCR_GTSFREQ_Pos);
+	uint32_t new_tcr = 0;
 
-	if(timestamps) {
-		// set timestamp prescaler
-		ITM->TCR &= ~ITM_TCR_TSPrescale_Msk;
-		ITM->TCR |= (ts_prescaler << ITM_TCR_TSPrescale_Pos) & ITM_TCR_TSPrescale_Msk;
-
-		// enable timestamps in trace
-		ITM->TCR |= ITM_TCR_TSENA_Msk;
+	if(globalTs) {
+		// generate global timestamp after every packet if the output FIFO is empty
+		new_tcr |= (0x3 << ITM_TCR_GTSFREQ_Pos);
 	}
 
+	if(localTs) {
+		// set timestamp prescaler
+		new_tcr |= (localTsPrescaler << ITM_TCR_TSPrescale_Pos) & ITM_TCR_TSPrescale_Msk;
+
+		// enable timestamps in trace
+		new_tcr |= ITM_TCR_TSENA_Msk;
+	}
+
+	ITM->TCR = new_tcr;
+
 	// enable ITM subsystem
-	ITM->TCR = ITM_TCR_ITMENA_Msk;
+	ITM->TCR |= ITM_TCR_ITMENA_Msk;
 
 	// enable all ITM trace ports
-	ITM->TER = 0xffffffff;
+	ITM->TER = channels;
 
 	// allow unprivileged access to all traceports
 	ITM->TPR = 0x0;
-
-	// lock ITM registers again
-	ITM->LAR = 0;
 }
 
-static inline void arm_cm4_enable_traceport_etm_tracing(bool timestamps, uint32_t ts_prescaler)
+static inline void arm_cm4_enable_traceport_etm_tracing(bool globalTs, bool localTs, uint32_t localTsPrescaler)
 {
 	/* XXX this is work in progress XXX */
 
 	// enable DWT and ITM blocks
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 
-
-	/* ARM documentation on TPI / TPIU (Trace Port Interface Unit)
-	 *	https://developer.arm.com/documentation/ddi0314/h/trace-port-interface-unit/tpiu-programmers-model
-	 *	CoreSight Components Technical Reference Manual
-	 *	v1.0
-	 *	-> Trace Port Interface Unit
-	 *	-> TPIU programmers model
-	 * @0xE0040000
-	 */
-
 	// enable 4-pin tracing in TPIU
 	TPI->CSPSR = (1 << 3);
 	// XXX this does not seem to work
-
-
-	/* ARM documentation on ETM (Embedded Trace Macrocell)
-	 *	https://developer.arm.com/documentation/ihi0014/q/programmers--model/the-etm-registers
-	 *	Embedded Trace Macrocell Architecture Specification
-	 *	v1.0-v3.5
-	 *	(Cortex-M4 has v3.5)
-	 *	-> Embedded Trace Macrocell Architecture Specification
-	 *	-> Programmer's Model
-	 *	-> The ETM registers
-	 * @0xE0041000
-	 */
 
 	// unlock ETM registers
 	//ETM->LAR = 0xC5ACCE55;
 
 	// lock ETM registers again
 	//ETM->LAR = 0;
-
-
-	/* ETB @0xE0042000
-	 * not equipped on many chips.
-	 */
 
 
 	/* ARM documentation on DWT (Data Watchpoint and Trace)
@@ -170,28 +177,32 @@ static inline void arm_cm4_enable_traceport_etm_tracing(bool timestamps, uint32_
 	// unlock ITM registers
 	ITM->LAR = 0xC5ACCE55;
 
+	uint32_t new_tcr = 0;
+
 	// set ATB ID (traceport) for CoreSight system (?)
-	ITM->TCR &= ~ITM_TCR_TraceBusID_Msk;
-	ITM->TCR |= (0x1 << ITM_TCR_TraceBusID_Pos);
+	new_tcr |= (0x1 << ITM_TCR_TraceBusID_Pos);
 
-	// generate global timestamp after every packet if the output FIFO is empty
-	ITM->TCR &= ~ITM_TCR_GTSFREQ_Msk;
-	ITM->TCR |= (0x3 << ITM_TCR_GTSFREQ_Pos);
-
-	if(timestamps) {
-		// set local timestamp prescaler
-		ITM->TCR &= ~ITM_TCR_TSPrescale_Msk;
-		ITM->TCR |= (ts_prescaler << ITM_TCR_TSPrescale_Pos) & ITM_TCR_TSPrescale_Msk;
-
-		// enable local timestamps generation
-		ITM->TCR |= ITM_TCR_TSENA_Msk;
+	if(globalTs) {
+		// generate global timestamp after every packet if the output FIFO is empty
+		new_tcr |= (0x3 << ITM_TCR_GTSFREQ_Pos);
 	}
 
+	if(localTs) {
+		// set timestamp prescaler
+		new_tcr |= (localTsPrescaler << ITM_TCR_TSPrescale_Pos) & ITM_TCR_TSPrescale_Msk;
+
+		// enable timestamps in trace
+		new_tcr |= ITM_TCR_TSENA_Msk;
+	}
+
+
 	// enable forwarding of hardware event packets from the DWT to the TPIU
-	ITM->TCR |= ITM_TCR_DWTENA_Msk;
+	new_tcr |= ITM_TCR_DWTENA_Msk; // (recent specs renamed this bit to TXENA)
 
 	// enable syncchronization packets for a synchronous TPIU
-	ITM->TCR |= ITM_TCR_SYNCENA_Msk;
+	new_tcr |= ITM_TCR_SYNCENA_Msk;
+
+	ITM->TCR = new_tcr;
 
 	// enable ITM subsystem
 	ITM->TCR |= ITM_TCR_ITMENA_Msk;
