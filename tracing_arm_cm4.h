@@ -77,9 +77,13 @@
  */
 static inline void arm_cm4_enable_swo_itm_tracing(bool uart, uint32_t outputPrescaler,
 					bool globalTs, bool localTs, uint32_t localTsPrescaler,
+					bool useTpiuFormatter,
 					uint32_t channels)
 {
 	/* XXX this is work in progress XXX */
+
+	// enable all needed power domains
+	// FIXME somehow set CSYSPWRUPREQ and CDBGPWRUPREQ in CTRL/STAT register of SW-DP
 
 	// enable DWT and ITM blocks
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
@@ -89,6 +93,12 @@ static inline void arm_cm4_enable_swo_itm_tracing(bool uart, uint32_t outputPres
 
 	// output type for SWO
 	TPI->SPPR = uart ? 2 : 1;
+
+	// en/disable TPIU formatter and flush
+	if(useTpiuFormatter)
+		TPI->FFCR |= TPI_FFCR_EnFCont_Msk;
+	else
+		TPI->FFCR &= ~TPI_FFCR_EnFCont_Msk;
 
 	// unlock ITM registers
 	ITM->LAR = 0xC5ACCE55;
