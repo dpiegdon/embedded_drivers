@@ -84,6 +84,7 @@ static inline void arm_cm4_enable_swo_itm_tracing(bool uart, uint32_t outputPres
 
 	// enable all needed power domains
 	// FIXME somehow set CSYSPWRUPREQ and CDBGPWRUPREQ in CTRL/STAT register of SW-DP
+	// => SEE ADIv5
 
 	// enable DWT and ITM blocks
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
