@@ -140,7 +140,7 @@ static inline void arm_cm4_enable_traceport_etm_tracing(bool globalTs, bool loca
 
 	// enable 4-pin tracing in TPIU
 	TPI->CSPSR = (1 << 3);
-	// XXX this does not seem to work
+	// XXX this does not seem to work, only one of the pins gets used
 
 	// unlock ETM registers
 	//ETM->LAR = 0xC5ACCE55;
