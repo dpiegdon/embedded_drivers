@@ -19,7 +19,7 @@
 
 #include "embedded_drivers/lfsr.h"
 
-extern embedded_drivers::lfsr <uint16_t, 16, 0b1010110011100001, 0b0000000000101101> lfsr_rng;
+extern embedded_drivers::lfsr_fibonacci lfsr_rng;
 
 void lfsr_rng_deinit(void);
 
