@@ -18,6 +18,7 @@
 #pragma once
 
 #include <alloca.h>
+#include <cassert>
 #include <cstring>
 #include <cstdint>
 #include <vector>
