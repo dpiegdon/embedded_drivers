@@ -15,7 +15,7 @@
     along with embedded_drivers.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-//#pragma once
+#pragma once
 
 #include <cstdint>
 
@@ -77,4 +77,4 @@ namespace embedded_drivers {
 		}
 	};
 
-}; // end of namespace embedded_drivers
+} // end of namespace embedded_drivers
