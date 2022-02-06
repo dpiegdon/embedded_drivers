@@ -20,10 +20,10 @@
 #include "embedded_drivers/nrfx/lfsr_rng.h"
 
 
-embedded_drivers::lfsr_fibonacci lfsr_rng;
+embedded_drivers::LfsrFibonacci lfsr_rng;
 
 static void rng_callback(uint8_t rng_data) {
-	lfsr_rng.iterate(rng_data, 8);
+	lfsr_rng.Iterate(rng_data, 8);
 }
 
 void lfsr_rng_init(void) {

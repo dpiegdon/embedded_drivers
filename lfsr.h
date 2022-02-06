@@ -25,11 +25,9 @@ namespace embedded_drivers {
 	// additional random bits into the front to improve its randomness.
 	// The default parameters match to a fibonacci LFSR.
 	template <typename basetype_t, unsigned int WIDTH, basetype_t INIT_VALUE, basetype_t FEEDBACK>
-	class lfsr {
-		basetype_t shiftreg;
-
+	class Lfsr {
 	public:
-		lfsr(basetype_t initial_state=INIT_VALUE)
+		Lfsr(basetype_t initial_state=INIT_VALUE)
 		{
 			static_assert(sizeof(basetype_t)*8 >= WIDTH,
 				"basetype_t is not large enough to represent full LFSR state.");
@@ -37,18 +35,18 @@ namespace embedded_drivers {
 		}
 
 		template<unsigned int COUNT=1>
-		basetype_t iterate(void)
+		basetype_t Iterate(void)
 		{
 			static_assert(COUNT <= WIDTH);
 			basetype_t out = this->shiftreg & ((1 << COUNT)-1);
 
 			for (unsigned int i = 0; i < COUNT; ++i) {
-				this->iterate(false);
+				this->Iterate(false);
 			}
 			return out;
 		}
 
-		bool iterate(bool input)
+		bool Iterate(bool input)
 		{
 			bool out = this->shiftreg & 1;
 
@@ -65,18 +63,21 @@ namespace embedded_drivers {
 		}
 
 		template <typename intype_t>
-		bool iterate(intype_t input, unsigned bits)
+		bool Iterate(intype_t input, unsigned bits)
 		{
 			bool out;
 			while (bits) {
-				out = this->iterate(input & 1);
+				out = this->Iterate(input & 1);
 				input >>= 1;
 				--bits;
 			}
 			return out;
 		}
+
+	private:
+		basetype_t shiftreg;
 	};
 
-	typedef lfsr <uint16_t, 16, 0b1010110011100001, 0b0000000000101101> lfsr_fibonacci;
+	typedef Lfsr<uint16_t, 16, 0b1010110011100001, 0b0000000000101101> LfsrFibonacci;
 
 } // end of namespace embedded_drivers
