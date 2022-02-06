@@ -30,14 +30,14 @@ namespace embedded_drivers {
 		{
 			static_assert(sizeof(basetype_t)*8 >= WIDTH,
 				"basetype_t is not large enough to represent full LFSR state.");
-			this->shiftreg = initial_state;
+			this->mShiftReg = initial_state;
 		}
 
 		template<unsigned int COUNT=1>
 		basetype_t Iterate(void)
 		{
 			static_assert(COUNT <= WIDTH);
-			basetype_t out = this->shiftreg & ((1 << COUNT)-1);
+			basetype_t out = this->mShiftReg & ((1 << COUNT)-1);
 
 			for (unsigned int i = 0; i < COUNT; ++i) {
 				this->Iterate(false);
@@ -47,16 +47,16 @@ namespace embedded_drivers {
 
 		bool Iterate(bool input)
 		{
-			bool out = this->shiftreg & 1;
+			bool out = this->mShiftReg & 1;
 
-			basetype_t feedback = this->shiftreg & FEEDBACK;
+			basetype_t feedback = this->mShiftReg & FEEDBACK;
 			if (input)
 				feedback = feedback ^ 1;
 			while (feedback > 1)
 				feedback = (feedback >> 1) ^ (feedback & 1);
 
-			this->shiftreg >>= 1;
-			this->shiftreg |= feedback << (WIDTH-1);
+			this->mShiftReg >>= 1;
+			this->mShiftReg |= feedback << (WIDTH-1);
 
 			return out;
 		}
@@ -74,7 +74,7 @@ namespace embedded_drivers {
 		}
 
 	private:
-		basetype_t shiftreg;
+		basetype_t mShiftReg;
 	};
 
 	// These parameters match to a fibonacci LFSR:

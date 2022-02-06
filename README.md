@@ -36,7 +36,13 @@ Naming:
 
 * Classnames should be `CamelCase`, with the first letter upper.
 * Types should be `CamelCase`, with the first letter upper.
-* Variables should be `snake_case`.
+* Member-variables should start with an `m` and otherwise be `CamelCase`, e.g. `mSomeThing`.
+* Member-variables should be private unless there is a good reason.
+* Constants and member-constants should follow one of these:
+  - start with a `c` and otherwise be `CamelCase`, e.g. `cEulersNumber`.
+  - be all `CAPITAL`.
+  - enclosed in an enum with all `CamelCase`.
+* Plain variables should be `snake_case`.
 
 Indentation:
 
@@ -50,7 +56,8 @@ Where-to-do-what:
 
 * Documentation of function use/API belongs in the header. (Unless C++ modules are used.)
 * Everything should be inside `namespace embedded_drivers`.
-* Constants should be const member variables, not defines.
+* Macros should be avoided where reasonable.
+* Constants should be const member variables instead of macros.
 * Global variables should not exist, except in monoid-style hardware abstractions (like `nrfx_lfsr`) or constant definitions (like fonts).
 
 Target:
