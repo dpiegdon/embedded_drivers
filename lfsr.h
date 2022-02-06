@@ -23,7 +23,6 @@ namespace embedded_drivers {
 
 	// Implements a generic linear feedback shift register that allows to shift
 	// additional random bits into the front to improve its randomness.
-	// The default parameters match to a fibonacci LFSR.
 	template <typename basetype_t, unsigned int WIDTH, basetype_t INIT_VALUE, basetype_t FEEDBACK>
 	class Lfsr {
 	public:
@@ -78,6 +77,7 @@ namespace embedded_drivers {
 		basetype_t shiftreg;
 	};
 
+	// These parameters match to a fibonacci LFSR:
 	typedef Lfsr<uint16_t, 16, 0b1010110011100001, 0b0000000000101101> LfsrFibonacci;
 
 } // end of namespace embedded_drivers
