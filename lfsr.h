@@ -17,7 +17,11 @@
 
 #pragma once
 
-#include <cstdint>
+#ifdef LFSR_USE_LEGACY_C_HEADER
+# include <stdint.h>
+#else
+# include <cstdint>
+#endif
 
 namespace embedded_drivers {
 
