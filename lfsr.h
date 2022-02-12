@@ -19,8 +19,10 @@
 
 #ifdef LFSR_USE_LEGACY_C_HEADER
 # include <stdint.h>
+# include <assert.h>
 #else
 # include <cstdint>
+# include <cassert>
 #endif
 
 namespace embedded_drivers {
