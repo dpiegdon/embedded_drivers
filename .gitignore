@@ -4,3 +4,6 @@
 *.su
 *.swp
 .*.swp
+tests/*
+!tests/*.cpp
+!tests/Makefile

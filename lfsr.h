@@ -27,61 +27,61 @@ namespace embedded_drivers {
 
 	// Implements a generic linear feedback shift register that allows to shift
 	// additional random bits into the front to improve its randomness.
-	template <typename basetype_t, unsigned int WIDTH, basetype_t INIT_VALUE, basetype_t FEEDBACK>
+	template <class T, unsigned int WIDTH, T INIT_VALUE, T FEEDBACK>
 	class Lfsr {
 	public:
-		Lfsr(basetype_t initial_state=INIT_VALUE)
+		typedef T BaseType;
+		static const unsigned int cWidth = WIDTH;
+
+		Lfsr(BaseType initial_state=INIT_VALUE)
 		{
-			static_assert(sizeof(basetype_t)*8 >= WIDTH,
-				"basetype_t is not large enough to represent full LFSR state.");
-			this->mShiftReg = initial_state;
+			static_assert(sizeof(BaseType)*8 >= cWidth,
+				"BaseType is not large enough to represent full LFSR state.");
+			static_assert(cWidth > 0,
+				"Width must be larger than zero.");
+			mShiftReg = initial_state;
 		}
 
-		template<unsigned int COUNT=1>
-		basetype_t Iterate(void)
+		BaseType Iterate(unsigned count=1, BaseType input=0)
 		{
-			static_assert(COUNT <= WIDTH);
-			basetype_t out = this->mShiftReg & ((1 << COUNT)-1);
+			assert(count <= (8 * sizeof(BaseType)));
 
-			for (unsigned int i = 0; i < COUNT; ++i) {
-				this->Iterate(false);
+			BaseType output = 0;
+			mShiftReg ^= input;
+			for (unsigned i = 0; i < count; ++i) {
+				bool feedback = mShiftReg & 1;
+
+				mShiftReg >>= 1;
+				output >>= 1;
+				if (feedback) {
+					mShiftReg ^= FEEDBACK;
+					output |= (1ULL << (8 * sizeof(BaseType) - 1));
+				}
 			}
-			return out;
+			output >>= (8 * sizeof(BaseType)) - count;
+			return output;
 		}
 
-		bool Iterate(bool input)
+		BaseType GetRegisterState(void)
 		{
-			bool out = this->mShiftReg & 1;
-
-			basetype_t feedback = this->mShiftReg & FEEDBACK;
-			if (input)
-				feedback = feedback ^ 1;
-			while (feedback > 1)
-				feedback = (feedback >> 1) ^ (feedback & 1);
-
-			this->mShiftReg >>= 1;
-			this->mShiftReg |= feedback << (WIDTH-1);
-
-			return out;
-		}
-
-		template <typename intype_t>
-		bool Iterate(intype_t input, unsigned bits)
-		{
-			bool out;
-			while (bits) {
-				out = this->Iterate(input & 1);
-				input >>= 1;
-				--bits;
-			}
-			return out;
+			return mShiftReg;
 		}
 
 	private:
-		basetype_t mShiftReg;
+		BaseType mShiftReg;
 	};
 
-	// These parameters match to a fibonacci LFSR:
-	typedef Lfsr<uint16_t, 16, 0b1010110011100001, 0b0000000000101101> LfsrFibonacci;
+	// Several default LFSR implementations with maximal period, as per http://users.ece.cmu.edu/~koopman/lfsr/
+	typedef Lfsr<uint8_t,   4, 0b1,    0xC>           LfsrDefault4;
+	typedef Lfsr<uint8_t,   8, 0b1,    0x8E>          LfsrDefault8;
+	typedef Lfsr<uint16_t,  9, 0b1,    0x108>         LfsrDefault9;
+	typedef Lfsr<uint16_t, 10, 0b1,    0x204>         LfsrDefault10;
+	typedef Lfsr<uint16_t, 15, 0b1,    0x4001>        LfsrDefault15;
+	typedef Lfsr<uint16_t, 16, 0xACE1, 0xB400>        LfsrFibonacci;
+	typedef Lfsr<uint16_t, 16, 0b1,    0x8016>        LfsrDefault16;
+	typedef Lfsr<uint32_t, 17, 0b1,    0x10004>       LfsrDefault17;
+	typedef Lfsr<uint32_t, 18, 0b1,    0x2001F>       LfsrDefault18;
+	typedef Lfsr<uint32_t, 24, 0b1,    0x80000D>      LfsrDefault24;
+	typedef Lfsr<uint32_t, 32, 0b1,    0x80000057LLU> LfsrDefault32;
 
 } // end of namespace embedded_drivers
