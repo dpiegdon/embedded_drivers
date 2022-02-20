@@ -54,13 +54,12 @@ namespace embedded_drivers {
 				bool feedback = mShiftReg & 1;
 
 				mShiftReg >>= 1;
-				output >>= 1;
+				output <<= 1;
 				if (feedback) {
 					mShiftReg ^= FEEDBACK;
-					output |= (1ULL << (8 * sizeof(BaseType) - 1));
+					output |= 1;
 				}
 			}
-			output >>= (8 * sizeof(BaseType)) - count;
 			return output;
 		}
 
